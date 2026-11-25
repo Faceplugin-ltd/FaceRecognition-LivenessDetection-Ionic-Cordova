@@ -1,0 +1,240 @@
+/*
+ * The Android app's Material 3 dark palette, so the two look like one product.
+ * Values come straight from `app/src/main/res/values/colors.xml`.
+ */
+:root {
+  --fp-bg: #1c1b1f;
+  --fp-surface: #1c1b1f;
+  --fp-surface-container: #2a2733;
+  --fp-on-surface: #e6e1e5;
+  --fp-on-surface-variant: #cac4d0;
+  --fp-outline: #938f99;
+  --fp-outline-variant: #49454f;
+  --fp-primary: #d0bcff;
+  --fp-on-primary: #381e72;
+  --fp-primary-container: #4f378b;
+  /* Tab bar + home-indicator. Camera UI pads by this so controls clear the bar. */
+  --fp-tab-bar-height: calc(
+    56px + var(--ion-safe-area-bottom, env(safe-area-inset-bottom, 0px))
+  );
+
+  --fp-status-match: #2e7d32;
+  --fp-status-nomatch: #b26a00;
+  --fp-status-info: #1976d2;
+  --fp-danger: #b3261e;
+  --fp-liveness-real: #2ee6a6;
+  --fp-camera-chip: rgba(28, 27, 31, 0.8);
+
+  /* Ionic reads these for its own components. */
+  --ion-background-color: var(--fp-bg);
+  --ion-background-color-rgb: 28, 27, 31;
+  --ion-text-color: var(--fp-on-surface);
+  --ion-text-color-rgb: 230, 225, 229;
+  --ion-toolbar-background: var(--fp-bg);
+  --ion-toolbar-color: var(--fp-on-surface);
+  --ion-item-background: var(--fp-surface-container);
+  --ion-border-color: var(--fp-outline-variant);
+
+  --ion-color-primary: #d0bcff;
+  --ion-color-primary-rgb: 208, 188, 255;
+  --ion-color-primary-contrast: #381e72;
+  --ion-color-primary-contrast-rgb: 56, 30, 114;
+  --ion-color-primary-shade: #b7a5e0;
+  --ion-color-primary-tint: #d5c3ff;
+
+  --ion-color-danger: #b3261e;
+  --ion-color-danger-rgb: 179, 38, 30;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #9e211a;
+  --ion-color-danger-tint: #bb3c35;
+}
+
+body {
+  background: var(--fp-bg);
+  color: var(--fp-on-surface);
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/*
+ * Keep the tab router outlet full-bleed so the HTML overlay matches the native
+ * camera (pinned to the WebView). Shrinking the outlet made face boxes drift
+ * and still left the gallery/shutter under the bar. Controls clear the bar with
+ * --fp-tab-bar-height padding instead.
+ */
+ion-tab-bar {
+  --background: var(--fp-bg);
+  --color: var(--fp-outline);
+  --color-selected: var(--fp-primary);
+  border-top: 1px solid var(--fp-outline-variant);
+  height: var(--fp-tab-bar-height);
+  padding-bottom: var(--ion-safe-area-bottom, env(safe-area-inset-bottom, 0px));
+  position: absolute !important;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+}
+
+/* People / Settings lists: keep last rows above the tab bar. */
+ion-tabs ion-content {
+  --padding-bottom: var(--fp-tab-bar-height);
+}
+
+ion-tab-button {
+  --padding-top: 6px;
+  --padding-bottom: 6px;
+  font-size: 12px;
+}
+
+ion-content {
+  --background: var(--fp-bg);
+}
+
+/* Add-person / bulk-enroll sheets: readable on the dark Material palette. */
+ion-action-sheet.fp-action-sheet,
+ion-action-sheet {
+  --background: #2a2733;
+  --button-background: #2a2733;
+  --button-background-selected: #4f378b;
+  --button-background-activated: #3a3644;
+  --button-background-hover: #3a3644;
+  --button-color: #e6e1e5;
+  --button-color-selected: #e6e1e5;
+  --color: #e6e1e5;
+}
+
+ion-action-sheet .action-sheet-title,
+ion-action-sheet .action-sheet-button,
+ion-action-sheet .action-sheet-cancel {
+  color: #e6e1e5 !important;
+}
+
+ion-action-sheet .action-sheet-button.ion-activated,
+ion-action-sheet .action-sheet-button:hover {
+  color: #ffffff !important;
+}
+
+ion-alert.fp-alert,
+ion-alert {
+  --background: #2a2733;
+  --max-width: 320px;
+}
+
+ion-alert .alert-head,
+ion-alert .alert-title,
+ion-alert .alert-sub-title,
+ion-alert .alert-message,
+ion-alert .alert-radio-label,
+ion-alert .alert-checkbox-label,
+ion-alert .alert-button {
+  color: #e6e1e5 !important;
+}
+
+ion-alert.fp-alert-list .alert-button-group {
+  flex-direction: column !important;
+}
+
+ion-alert.fp-alert-list .alert-button {
+  justify-content: flex-start !important;
+  border-top: 1px solid #49454f !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+ion-alert .alert-radio-icon {
+  border-color: #938f99 !important;
+}
+
+ion-alert .alert-radio-inner {
+  background: #d0bcff !important;
+}
+
+/* Material's own control sizing, rather than Ionic's defaults. */
+ion-range {
+  --bar-background: var(--fp-outline-variant);
+  --bar-background-active: var(--fp-primary);
+  --knob-background: var(--fp-primary);
+  --bar-height: 4px;
+  --knob-size: 20px;
+  padding: 4px 0;
+}
+
+ion-toggle {
+  --track-background: var(--fp-outline-variant);
+  --track-background-checked: var(--fp-primary-container);
+  --handle-background: var(--fp-outline);
+  --handle-background-checked: var(--fp-primary);
+}
+
+ion-searchbar {
+  --background: var(--fp-surface-container);
+  --color: var(--fp-on-surface);
+  --placeholder-color: var(--fp-outline);
+  --icon-color: var(--fp-outline);
+  --border-radius: 28px;
+  --box-shadow: none;
+  padding: 0;
+}
+
+ion-button {
+  --border-radius: 20px;
+  text-transform: none;
+  letter-spacing: 0.1px;
+  font-weight: 500;
+}
+
+ion-spinner {
+  color: var(--fp-primary);
+}
+
+/*
+ * Leaving the splash for the tabs runs an enter fade. On the device that fade
+ * never finishes, so the shell stays at opacity 0 and the screen is black.
+ * Hidden pages stay display:none; only the stuck fade is undone.
+ */
+.ion-page-invisible {
+  opacity: 1 !important;
+}
+
+/*
+ * While a live preview runs, the native camera sits behind the WebView and the plugin
+ * sets this class on <html>. Everything in the stack has to be see-through for that one
+ * screen — and only for it, which is why the WebView itself is opaque by default.
+ *
+ * Keep the tab bar itself opaque so it covers the preview strip under the buttons.
+ */
+html.frs-live-camera,
+html.frs-live-camera body,
+html.frs-live-camera #root,
+html.frs-live-camera ion-app,
+html.frs-live-camera ion-tabs,
+html.frs-live-camera ion-router-outlet,
+html.frs-live-camera ion-tab,
+html.frs-live-camera .ion-page,
+html.frs-live-camera .live-page,
+html.frs-live-camera ion-content,
+html.frs-live-camera ion-content.live-content {
+  background: transparent !important;
+  --background: transparent !important;
+  --ion-background-color: transparent !important;
+  --overflow: hidden;
+}
+
+html.frs-live-camera ion-tab-bar {
+  background: var(--fp-bg) !important;
+  --background: var(--fp-bg) !important;
+}
+
+html.frs-live-camera ion-content::part(background),
+html.frs-live-camera ion-content::part(scroll),
+html.frs-live-camera .inner-scroll,
+html.frs-live-camera .scroll-content {
+  background: transparent !important;
+}
+
+.live-page,
+.live-content {
+  --background: transparent;
+  background: transparent;
+}
