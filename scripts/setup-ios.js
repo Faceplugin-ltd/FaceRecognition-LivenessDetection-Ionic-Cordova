@@ -55,4 +55,4 @@ if (fs.existsSync(path.join(pluginsDir, 'face-recognition-cordova'))) {
 run('npx cordova plugin add ./FacePlugin --nofetch --nosave');
 
 run('npx cordova prepare ios');
-console.log('\niOS setup complete. Run: python run_ios');
+console.log('\niOS setup complete. Run: python run_ios.py');

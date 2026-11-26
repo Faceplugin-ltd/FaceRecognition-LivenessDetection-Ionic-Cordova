@@ -35,7 +35,7 @@ FacePlugin/src/ios/Frameworks/**/*.framework/**
 .env
 .env.*
 
-# Python caches from run_android / run_ios
+# Python caches from run_android.py / run_ios.py
 __pycache__/
 *.pyc
 *.pyo

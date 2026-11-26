@@ -16,7 +16,7 @@ Jump: [Quick start](#quick-start) · [Get the runtimes](#get-the-runtimes) · [R
 - [ ] Clone [FaceRecognition-LivenessDetection-Ionic-Cordova](https://github.com/Faceplugin-ltd/FaceRecognition-LivenessDetection-Ionic-Cordova)
 - [ ] `npm install`
 - [ ] Place the native runtimes — [Get the runtimes](#get-the-runtimes)
-- [ ] `python run_android` (or, on macOS, set your Team ID in `build.json` and run `python run_ios`)
+- [ ] `python run_android.py` (or, on macOS, set your Team ID in `build.json` and run `python run_ios.py`)
 - [ ] The demo ships with license keys for `com.faceplugin.facerecognitionsdk` (Android) and `com.faceplugin.facerecognition.app` (iOS)
 
 > **Windows:** do not add the iOS platform. Add iOS only on macOS, after placing the frameworks.
@@ -131,8 +131,8 @@ git clone https://github.com/Faceplugin-ltd/FaceRecognition-LivenessDetection-Io
 cd FaceRecognition-LivenessDetection-Ionic-Cordova
 npm install
 # place the AAR (and the iOS frameworks on macOS) — see above
-python run_android
-python run_ios          # macOS
+python run_android.py
+python run_ios.py          # macOS
 ```
 
 The run scripts are the same as `npm run setup:android` then `npm run android` (and `setup:ios` / `ios` on macOS).
