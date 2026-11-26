@@ -1,6 +1,6 @@
 # iOS frameworks
 
-Same LX runtimes as `Face-Recognition-LivenessDetection-iOS`. Place:
+Same runtimes as `Face-Recognition-LivenessDetection-iOS`. Place:
 
 - `facerecognitionsdk.framework`
 - `FacePluginSDK.framework` (ios-arm64 slice)

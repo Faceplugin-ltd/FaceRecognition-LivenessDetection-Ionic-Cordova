@@ -38,11 +38,12 @@ The engine binaries are the same ones the native apps use, so you get identical 
 
 | Feature | API |
 | ------- | --- |
-| **1:N identification** on a live camera feed | `startVideoWorker` · `syncVideoWorkerDatabase` · `addVideoWorkerFrame` |
+| **1:N identification** on a live camera feed | `IdentifySession` (VideoWorker) · or the raw `startVideoWorker` · `syncVideoWorkerDatabase` · `addVideoWorkerFrame` |
 | Face detection (bounding box, landmarks, pose, attributes) | `faceDetection` |
-| Passive liveness (anti-spoofing) | `faceDetection` with liveness, live worker events |
+| Passive liveness (anti-spoofing) | `faceDetection` with liveness, `IdentifySession` / `CaptureSession` events |
 | Face image quality | `quality` |
 | Face template extraction and similarity | `templateExtraction` · `similarity` |
+| Guided camera capture | `CaptureSession` |
 | Face crop for enrollment | `cropFace` |
 | License and engine lifecycle | `getMachineCode` · `setActivation` · `init` · `getLicenseStatus` |
 
@@ -81,7 +82,7 @@ Gradle is bootstrapped by `scripts/with-gradle.js`, so you do not need to set `G
 | Item | Minimum | Recommended |
 | ---- | ------- | ----------- |
 | Android | API 24, `arm64-v8a` | Android 10 or newer |
-| iOS | 15.0, arm64 device | iPhone 11 or newer |
+| iOS | 13.0, arm64 device | iPhone 11 or newer |
 | Node | 18 | 20 |
 | RAM (device) | 4 GB | 6 GB or more |
 
@@ -265,13 +266,47 @@ if (faces.length === 1) {
 const score = await similarity(templateA, templateB);   // 1:1
 ```
 
-**3. Live 1:N identification**
+**3. Live 1:N identification and capture**
+
+Two session classes do the camera work for you — `IdentifySession` for live 1:N, `CaptureSession` for the guided capture coach. Both are exported from the plugin package, and the demo's camera pages are built on them.
+
+```ts
+import { IdentifySession, CaptureSession, DEFAULT_CAPTURE_SETTINGS } from 'face-recognition-cordova';
+
+const identify = new IdentifySession({
+  settings: {
+    frontCamera: true,
+    matchThreshold: 0.8,     // startVideoWorker's own default is 0.67
+    livenessLevel: 0,
+  },
+  featureTemplates,          // the templates you enrolled, in your own order
+  onTracking: (boxes, frame) => drawOverlay(boxes, frame),
+  onMatch: (personIndex, score) => show(featureTemplates[personIndex], score),
+});
+await identify.start();      // preview + video worker + gallery sync
+await identify.stop();
+```
+
+`CaptureSession` drives the oval capture coach the same way — it reports a `CaptureState` and a warning per frame, and `captureNow()` returns the still, the face box and a crop:
+
+```ts
+const capture = new CaptureSession({
+  settings: { ...DEFAULT_CAPTURE_SETTINGS, camera_lens: 'front' },
+  onState: (state, warning, boxes, frame) => coach(state, warning, boxes, frame),
+  onCaptured: ({ uri, faceBox, cropB64 }) => enroll(uri, faceBox, cropB64),
+});
+await capture.start();
+const shot = await capture.captureNow(boxes);
+await capture.stop();
+```
+
+Both sessions own the camera, so start only one at a time. The raw calls underneath are still exported if you drive the camera yourself:
 
 ```ts
 import { startVideoWorker, syncVideoWorkerDatabase, addVideoWorkerFrame, stopVideoWorker } from 'face-recognition-cordova';
 
 await startVideoWorker({ matchThreshold: 0.67 });
-await syncVideoWorkerDatabase(templates);
+await syncVideoWorkerDatabase(templates, 0.67);
 // feed camera frames with addVideoWorkerFrame(...)
 await stopVideoWorker();
 ```
@@ -284,8 +319,19 @@ await stopVideoWorker();
 | 1 | `SDK_LICENSE_INVALID` | Invalid license |
 | 2 | `SDK_LICENSE_EXPIRED` | Expired license |
 | 3 | `SDK_NOT_ACTIVATED` | Not activated |
+| 4 | `SDK_INIT_FAILED` | `init()` failed |
 
-Thresholds (match, liveness, pose, eye-close) are parameters you pass from TypeScript, so you can tune them for your product. The demo's Settings tab shows the defaults the native apps use.
+**5. Thresholds**
+
+Thresholds (match, liveness, pose, eye-close) are parameters you pass from TypeScript, so you can tune them for your product. Three different defaults apply, depending on where you are:
+
+| Where | Defaults |
+| ----- | -------- |
+| `DEFAULT_CAPTURE_SETTINGS` — guided capture ([`FacePlugin/lib/capture/types.ts`](FacePlugin/lib/capture/types.ts)) | `match_threshold` **0.8**, `liveness_threshold` **0.5**, `liveness_level` **0**, `yaw/roll/pitch_threshold` **20**, `eyeclose_threshold` **0.5** |
+| `startVideoWorker` / `syncVideoWorkerDatabase` — live 1:N ([`FacePlugin/lib/runtime.ts`](FacePlugin/lib/runtime.ts)) | `matchThreshold` **0.67** |
+| The demo's Settings tab ([`src/data/settings.ts`](src/data/settings.ts)) | `threshold` **0.8**, `livenessThreshold` **0.5**, slider range **0.7 – 0.9** |
+
+The video worker's 0.67 and capture's 0.8 are genuinely different numbers, so pick the one that belongs to the call you are making. Pass your own value and no default applies.
 
 ## Contact
 
