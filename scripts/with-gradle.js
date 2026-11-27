@@ -5,7 +5,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { spawnSync, execSync } = require('child_process');
+const { spawnSync, execSync, execFileSync } = require('child_process');
 
 const GRADLE_VERSION = process.env.FACEPLUGIN_GRADLE_VERSION || '8.7';
 const ROOT = path.resolve(__dirname, '..');
@@ -33,23 +33,37 @@ function findLocalGradle() {
   return null;
 }
 
-// Ensure portable Gradle exists when nothing is on PATH.
-try {
-  execSync(process.platform === 'win32' ? 'where gradle' : 'command -v gradle', {
-    stdio: 'ignore',
-    shell: true,
-  });
-} catch {
-  require('child_process').execSync(`node "${path.join(__dirname, 'ensure-gradle.js')}"`, {
+function hasSystemGradle() {
+  try {
+    execSync(process.platform === 'win32' ? 'where gradle' : 'command -v gradle', {
+      stdio: 'ignore',
+      shell: true,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Prefer PATH, then .tools / wrapper cache, then download into .tools.
+let localBin = findLocalGradle();
+if (!hasSystemGradle() && !localBin) {
+  execFileSync(process.execPath, [path.join(__dirname, 'ensure-gradle.js')], {
     stdio: 'inherit',
     cwd: ROOT,
   });
+  localBin = findLocalGradle();
 }
-
-const localBin = findLocalGradle();
 const env = { ...process.env };
 if (localBin) {
-  env.PATH = `${localBin}${path.delimiter}${env.PATH || ''}`;
+  // Windows environment names are case-insensitive, but this JS object is not.
+  // Adding PATH beside Path can discard Node/Java/npm from the child environment.
+  const pathKey = Object.keys(env).find((key) => key.toLowerCase() === 'path') || 'PATH';
+  const inheritedPath = env[pathKey] || '';
+  for (const key of Object.keys(env)) {
+    if (key.toLowerCase() === 'path' && key !== pathKey) delete env[key];
+  }
+  env[pathKey] = `${localBin}${path.delimiter}${inheritedPath}`;
   env.GRADLE_HOME = path.dirname(localBin);
 }
 

@@ -9,13 +9,13 @@
     "build": "tsc && vite build",
     "ionic:build": "npm run build",
     "dev": "vite",
-    "ensure-gradle": "node scripts/ensure-gradle.js",
     "plugin:build": "tsc -p FacePlugin/tsconfig.json",
     "postinstall": "npm run plugin:build",
+    "ensure-gradle": "node scripts/ensure-gradle.js",
     "setup:android": "node scripts/with-gradle.js node scripts/setup-android.js",
     "setup:ios": "node scripts/setup-ios.js",
     "android": "npm run plugin:build && npm run build && node scripts/with-gradle.js npx cordova prepare android && node scripts/with-gradle.js npx cordova run android --device",
-    "ios": "node scripts/run-ios.js"
+    "ios": "npm run build && npx cordova prepare ios && npx cordova run ios --device"
   },
   "dependencies": {
     "@ionic/react": "^8.4.1",

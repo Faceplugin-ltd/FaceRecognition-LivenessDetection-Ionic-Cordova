@@ -3,39 +3,65 @@
 .idea/
 .vscode/
 *.iml
+*.swp
+*~
 
-# node
+# node (installed)
 node_modules/
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 FacePlugin/node_modules/
 FacePlugin/dist/
 
-# Build / Cordova
-www/
+# Cordova generated / web build
+# Only the app Vite output at repo root — NOT FacePlugin/www (js-module bridge).
+/www/
 platforms/
 plugins/
+
+# Local toolchain downloads (old Gradle bootstrap leftover)
 .tools/
 
-# Android
+# Android build / cache
 .gradle/
 local.properties
 **/build/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+*.hprof
+*.log
+.kotlin/
+
+# Engine AAR (downloaded by run_android.py / Releases)
 *.aar
 !FacePlugin/src/android/AAR_README.md
 
-# iOS
+# iOS build / cache / downloaded frameworks
 **/Pods/
 DerivedData/
 *.xcuserstate
 xcuserdata/
+*.ipa
+*.dSYM
+*.dSYM.zip
+FacePlugin/src/ios/Frameworks/*.framework/
+FacePlugin/src/ios/Frameworks/*.xcframework/
 FacePlugin/src/ios/Frameworks/**/*.framework/**
 !FacePlugin/src/ios/Frameworks/README.md
 
-# Env
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Env / secrets
 .env
 .env.*
-
-# Python caches from run_android.py / run_ios.py
-__pycache__/
-*.pyc
-*.pyo
+*.jks
+*.keystore

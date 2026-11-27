@@ -1,3 +1,4 @@
+// CameraX + AAR also live in build-extras.gradle so a half-installed plugin still compiles.
 repositories {
     google()
     mavenCentral()

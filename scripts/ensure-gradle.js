@@ -14,6 +14,18 @@ const ROOT = path.resolve(__dirname, '..');
 const TOOLS = path.join(ROOT, '.tools');
 const GRADLE_HOME = path.join(TOOLS, `gradle-${GRADLE_VERSION}`);
 const MARKER = path.join(GRADLE_HOME, 'bin', process.platform === 'win32' ? 'gradle.bat' : 'gradle');
+// gradle.bat alone is not enough — a truncated unzip can omit lib/plugins and then fail with
+// UnknownModuleException: Cannot locate JAR for module 'ant'.
+const PLUGINS_DIR = path.join(GRADLE_HOME, 'lib', 'plugins');
+
+function gradleLooksComplete() {
+  if (!fs.existsSync(MARKER) || !fs.existsSync(PLUGINS_DIR)) return false;
+  try {
+    return fs.readdirSync(PLUGINS_DIR).some((name) => name.endsWith('.jar'));
+  } catch {
+    return false;
+  }
+}
 
 function whichGradle() {
   try {
@@ -49,11 +61,16 @@ function download(url, dest) {
 }
 
 async function main() {
-  if (fs.existsSync(MARKER)) {
+  if (gradleLooksComplete()) {
     console.log(`[ensure-gradle] Using ${GRADLE_HOME}`);
     return;
   }
-  if (whichGradle() && process.env.FACEPLUGIN_FORCE_GRADLE !== '1') {
+  if (fs.existsSync(GRADLE_HOME)) {
+    console.log(`[ensure-gradle] Incomplete install at ${GRADLE_HOME} — re-downloading`);
+    fs.rmSync(GRADLE_HOME, { recursive: true, force: true });
+  }
+  if (whichGradle() && process.env.FACEPLUGIN_FORCE_GRADLE !== '1' && !fs.existsSync(GRADLE_HOME)) {
+    // Only skip download when we are not repairing a broken local tree.
     console.log('[ensure-gradle] System Gradle found on PATH — skipping download');
     return;
   }
@@ -76,8 +93,10 @@ async function main() {
   }
   fs.unlinkSync(zipPath);
 
-  if (!fs.existsSync(MARKER)) {
-    throw new Error(`[ensure-gradle] Expected binary missing at ${MARKER}`);
+  if (!gradleLooksComplete()) {
+    throw new Error(
+      `[ensure-gradle] Incomplete Gradle at ${GRADLE_HOME} (missing bin or lib/plugins)`
+    );
   }
   console.log(`[ensure-gradle] Ready: ${GRADLE_HOME}`);
 }

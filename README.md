@@ -14,12 +14,16 @@ Jump: [Quick start](#quick-start) · [Get the runtimes](#get-the-runtimes) · [R
 ## Quick start
 
 - [ ] Clone [FaceRecognition-LivenessDetection-Ionic-Cordova](https://github.com/Faceplugin-ltd/FaceRecognition-LivenessDetection-Ionic-Cordova)
-- [ ] `npm install`
 - [ ] Place the native runtimes — [Get the runtimes](#get-the-runtimes)
-- [ ] `python run_android.py` (or, on macOS, set your Team ID in `build.json` and run `python run_ios.py`)
+- [ ] `python run_android.py` (or `python run_ios.py` on macOS) with a **physical** phone plugged in
 - [ ] The demo ships with license keys for `com.faceplugin.facerecognitionsdk` (Android) and `com.faceplugin.facerecognition.app` (iOS)
 
-> **Windows:** do not add the iOS platform. Add iOS only on macOS, after placing the frameworks.
+That is the whole setup. The scripts do the rest: `npm install`, adding the platform on the first
+run, `cordova prepare`, the build, and the install onto the phone. They need Node 18+, JDK 17 and
+Cordova 12 (plus Xcode 15+ on macOS) on PATH, and stop with a named hint if anything is missing.
+
+> **iOS:** set your Team ID in `build.json` first. On Windows, do not add the iOS platform —
+> add it only on macOS, after placing the frameworks.
 
 ## Introduction
 
@@ -75,8 +79,6 @@ The engine binaries are the same ones the native apps use, so you get identical 
 | 3 | A **physical** phone. Emulators and the simulator have no usable camera for liveness |
 | 4 | A license key for your ids ([contact us](#contact)). The demo already has keys for the ids above |
 
-Gradle is bootstrapped by `scripts/with-gradle.js`, so you do not need to set `GRADLE_HOME` by hand.
-
 ### System requirements
 
 | Item | Minimum | Recommended |
@@ -127,15 +129,25 @@ The Team ID is the certificate **OU** in Keychain, not the id next to your email
 ## Run the demo
 
 ```bash
-git clone https://github.com/Faceplugin-ltd/FaceRecognition-LivenessDetection-Ionic-Cordova.git
-cd FaceRecognition-LivenessDetection-Ionic-Cordova
-npm install
-# place the AAR (and the iOS frameworks on macOS) — see above
-python run_android.py
-python run_ios.py          # macOS
+python run_android.py     # downloads Releases assets if missing; or: python run_ios.py on macOS
 ```
 
-The run scripts are the same as `npm run setup:android` then `npm run android` (and `setup:ios` / `ios` on macOS).
+The runner downloads the engine if needed, then runs the usual Cordova steps. By hand:
+
+```bash
+npm install
+npm run setup:android                     # once — platform + camera + plugin + prepare
+npm run android                           # build → cordova prepare → cordova run
+```
+
+On macOS, put your Apple team id in `build.json`, then:
+
+```bash
+npm run setup:ios                         # once — platform + camera + plugin + prepare
+npm run ios
+```
+
+`npm run android` bootstraps Gradle when needed (`scripts/with-gradle.js`: system PATH, then the Gradle wrapper cache, then a portable copy under `.tools/`). Cordova needs a Gradle binary on PATH to create the platform wrapper the first time.
 
 Keep the demo ids so the included license activates:
 

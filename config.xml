@@ -19,7 +19,7 @@
          is not the camera renders black; the plugin turns transparency on only for the
          length of a live preview. -->
     <preference name="BackgroundColor" value="0xFF1C1B1F" />
-    <hook type="after_prepare" src="scripts/copy-android-icons.js" />
+    <hook type="after_prepare" src="hooks/copy-android-icons.js" />
     <!-- The installed plugin hook is a snapshot. This path is the live FacePlugin hook,
          so a new Kotlin file is copied into platforms before compile. -->
     <hook type="after_prepare" src="FacePlugin/hooks/android_prepare.js" />

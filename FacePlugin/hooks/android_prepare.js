@@ -75,14 +75,15 @@ function syncAndroidSources(projectRoot) {
  */
 function requireEngine(projectRoot, androidDir) {
   const src = path.join(projectRoot, 'FacePlugin', 'src', 'android', 'facerecognitionsdk.aar');
-  if (!fs.existsSync(src)) {
+  if (!fs.existsSync(src) || fs.statSync(src).size === 0) {
     throw new Error(
       [
         '[face-recognition-cordova] missing the Face Recognition Android runtime:',
         '  FacePlugin/src/android/facerecognitionsdk.aar',
         '',
-        'Get it from the FaceRecognition-LivenessDetection-Android release and drop',
-        'it in FacePlugin/src/android/, then run cordova prepare android again.',
+        'Run `python run_android.py` (downloads from GitHub Releases) or place',
+        'facerecognitionsdk.aar from FaceRecognition-LivenessDetection-Android',
+        'Releases into FacePlugin/src/android/, then prepare again.',
       ].join('\n')
     );
   }
@@ -92,12 +93,33 @@ function requireEngine(projectRoot, androidDir) {
   console.log('[face-recognition-cordova] copied the engine AAR into app/src/main/libs');
 }
 
+/** Keep build-extras (CameraX + flatDir AAR) fresh even when gradleReference was never installed. */
+function syncBuildExtras(projectRoot, androidDir) {
+  const src = path.join(projectRoot, 'FacePlugin', 'src', 'android', 'build-extras.gradle');
+  if (!fs.existsSync(src)) return;
+  const pluginDest = path.join(
+    projectRoot,
+    'plugins',
+    'face-recognition-cordova',
+    'src',
+    'android',
+    'build-extras.gradle'
+  );
+  if (fs.existsSync(path.dirname(path.dirname(pluginDest)))) {
+    copyFile(src, pluginDest);
+  }
+  // cordova-android applies both app/build-extras.gradle and ../build-extras.gradle.
+  copyFile(src, path.join(androidDir, 'app', 'build-extras.gradle'));
+  copyFile(src, path.join(androidDir, 'build-extras.gradle'));
+}
+
 function prepareAndroid(projectRoot) {
   const androidDir = path.join(projectRoot, 'platforms', 'android');
   if (!fs.existsSync(androidDir)) return;
 
   requireEngine(projectRoot, androidDir);
   syncAndroidSources(projectRoot);
+  syncBuildExtras(projectRoot, androidDir);
 
   const gp = path.join(androidDir, 'gradle.properties');
   if (fs.existsSync(gp)) {
